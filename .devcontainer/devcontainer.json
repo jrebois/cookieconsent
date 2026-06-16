@@ -1,0 +1,38 @@
+{
+  "name": "CookieConsent",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "node",
+  "updateRemoteUserUID": true,
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [5173, 4321],
+  "portsAttributes": {
+    "5173": {
+      "label": "VitePress Docs",
+      "onAutoForward": "notify"
+    },
+    "4321": {
+      "label": "Astro Playground",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "astro-build.astro-vscode",
+        "Vue.volar",
+        "sass.sass-lang"
+      ],
+      "settings": {
+        "eslint.useFlatConfig": true,
+        "eslint.workingDirectories": [
+          {
+            "mode": "auto"
+          }
+        ]
+      }
+    }
+  }
+}
