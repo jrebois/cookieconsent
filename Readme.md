@@ -16,6 +16,9 @@ There are also a few examples available on [Stackblitz](https://stackblitz.com/@
 ## Documentation
 Docs. available at [cookieconsent.orestbida.com](https://cookieconsent.orestbida.com).
 
+## Build & Deploy
+See the [build and deploy guide](/BUILD_AND_DEPLOY.md) for instructions on building artifacts and publishing releases.
+
 ## Contributing
 Please read the [contribution guide](/CONTRIBUTING.md).
 
