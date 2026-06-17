@@ -103,7 +103,7 @@ For CDN URLs and framework-specific setups, see the [Getting Started guide](http
 
 ### 2. Create a GitHub release
 
-Publishing a release on GitHub triggers the [NPM Registry workflow](.github/workflows/publish.yml), which publishes the package to [npm](https://www.npmjs.com/package/vanilla-cookieconsent):
+Publishing a release on GitHub triggers the [NPM Registry workflow](.github/workflows/publish.yml), which publishes the package to [npm](https://www.npmjs.com/package/@bcomenet/cookieconsent-vanilla):
 
 - **Stable release** → published with the `latest` tag
 - **Prerelease** → published with the `next` tag
@@ -116,7 +116,7 @@ Once a release tag exists, artifacts are available through:
 
 | Channel | Usage |
 | --- | --- |
-| **npm** | `pnpm add vanilla-cookieconsent@<version>` |
+| **npm** | `pnpm add @bcomenet/cookieconsent-vanilla@<version>` |
 | **jsDelivr (CDN)** | `https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@<version>/dist/cookieconsent.umd.js` |
 | **GitHub Releases** | Download the `dist/` folder from the [releases page](https://github.com/orestbida/cookieconsent/releases) |
 | **Self-hosted** | Copy `dist/cookieconsent.css` and `dist/cookieconsent.umd.js` to your static file server |

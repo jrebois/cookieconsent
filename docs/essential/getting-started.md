@@ -7,20 +7,20 @@ This section will help you install CookieConsent in your app/website.
 You can download/import the plugin using one of the following methods:
 <br>
 
-1. Install via [NPM](https://www.npmjs.com/package/vanilla-cookieconsent) or [Yarn](https://yarnpkg.com/package?name=vanilla-cookieconsent).
+1. Install via [NPM](https://www.npmjs.com/package/@bcomenet/cookieconsent-vanilla) or [Yarn](https://yarnpkg.com/package?name=%40bcomenet%2Fcookieconsent-vanilla).
 
     ::: code-group
 
     ```sh [npm]
-    npm i vanilla-cookieconsent@3.1.0
+    npm i @bcomenet/cookieconsent-vanilla@3.1.0
     ```
 
     ```sh [pnpm]
-    pnpm add vanilla-cookieconsent@3.1.0
+    pnpm add @bcomenet/cookieconsent-vanilla@3.1.0
     ```
 
     ```sh [yarn]
-    yarn add vanilla-cookieconsent@3.1.0
+    yarn add @bcomenet/cookieconsent-vanilla@3.1.0
     ```
 
     :::
@@ -82,8 +82,8 @@ Import the plugin in your root/APP component, and [configure](#configuration) it
 ```javascript{3-4}
 import { useEffect } from "react";
 
-import "vanilla-cookieconsent/dist/cookieconsent.css";
-import * as CookieConsent from "vanilla-cookieconsent";
+import "@bcomenet/cookieconsent-vanilla/dist/cookieconsent.css";
+import * as CookieConsent from "@bcomenet/cookieconsent-vanilla";
 
 export default function App() {
 
@@ -102,8 +102,8 @@ export default function App() {
 Create a new [Vue plugin](https://vuejs.org/guide/reusability/plugins.html): `CookieConsentVue.js`:
 
 ```javascript
-import "vanilla-cookieconsent/dist/cookieconsent.css";
-import * as CookieConsent from "vanilla-cookieconsent";
+import "@bcomenet/cookieconsent-vanilla/dist/cookieconsent.css";
+import * as CookieConsent from "@bcomenet/cookieconsent-vanilla";
 
 export default {
     install: (app, pluginConfig) => {
@@ -142,7 +142,7 @@ Declare the `cookieconsent.css` style in the `angular.json` file:
         "build": {
             "options": {
                 "styles": [
-                    "node_modules/vanilla-cookieconsent/dist/cookieconsent.css"
+                    "node_modules/@bcomenet/cookieconsent-vanilla/dist/cookieconsent.css"
                 ]
             }
         }
@@ -154,7 +154,7 @@ Import the module in your angular component (generally `app.component.ts`):
 
 ```javascript{2,13-17}
 import { Component, AfterViewInit } from '@angular/core';
-import * as CookieConsent from 'vanilla-cookieconsent';
+import * as CookieConsent from '@bcomenet/cookieconsent-vanilla';
 
 @Component({
     selector: 'app-root',
