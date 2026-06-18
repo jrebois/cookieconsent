@@ -296,6 +296,81 @@ export const parseCookie = (value, skipDecode) => {
 };
 
 /**
+ * Legacy domain variants derived from an explicit cookie.domain config value.
+ * @param {string} configDomain
+ * @returns {string[]}
+ */
+const getConfigCookieEraseDomains = (configDomain) => {
+    const domains = new Set(['']);
+    domains.add(configDomain);
+
+    if (configDomain.slice(0, 4) === 'www.') {
+        const withoutWww = configDomain.substring(4);
+        domains.add(withoutWww);
+        domains.add('.' + withoutWww);
+    }
+
+    return [...domains];
+};
+
+/**
+ * Infer domain variants from the current hostname when no cookie.domain is configured.
+ * Covers host-only cookies and cookies set on the registrable root domain
+ * (e.g. GA `_ga` on `.example.com` while browsing `www.example.com`).
+ * @param {string} hostname
+ * @returns {string[]}
+ */
+const getInferredCookieEraseDomains = (hostname) => {
+    const domains = new Set(['']);
+    const isLocalhost = hostname === 'localhost' || hostname.endsWith('.localhost');
+    const isIpAddress = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname) || hostname.includes(':');
+
+    if (!isLocalhost && !isIpAddress && elContains(hostname, '.')) {
+        domains.add(hostname);
+        domains.add('.' + hostname);
+
+        const parts = hostname.split('.');
+
+        if (parts.length > 2) {
+            const root = parts.slice(-2).join('.');
+            domains.add(root);
+            domains.add('.' + root);
+        }
+
+        if (hostname.slice(0, 4) === 'www.') {
+            const withoutWww = hostname.substring(4);
+            domains.add(withoutWww);
+            domains.add('.' + withoutWww);
+        }
+    }
+
+    return [...domains];
+};
+
+/**
+ * Build domain variants to try when erasing cookies without an explicit domain.
+ * Uses hostname inference when cookie.domain is not configured, otherwise
+ * preserves the legacy config-based behavior.
+ * @param {string} [customDomain]
+ * @param {string} [hostname]
+ * @param {string} [configDomain]
+ * @returns {string[]}
+ */
+export const getCookieEraseDomains = (
+    customDomain,
+    hostname = location.hostname,
+    configDomain = globalObj._config.cookie.domain
+) => {
+    if (customDomain)
+        return [customDomain];
+
+    if (configDomain)
+        return getConfigCookieEraseDomains(configDomain);
+
+    return getInferredCookieEraseDomains(hostname);
+};
+
+/**
  * Delete cookie by name & path
  * @param {string[]} cookies Array of cookie names
  * @param {string} [customPath]
@@ -305,10 +380,8 @@ export const eraseCookiesHelper = (cookies, customPath, customDomain) => {
     if (cookies.length === 0)
         return;
 
-    const domain = customDomain || globalObj._config.cookie.domain;
     const path = customPath || globalObj._config.cookie.path;
-    const isWwwSubdomain = domain.slice(0, 4) === 'www.';
-    const mainDomain = isWwwSubdomain && domain.substring(4);
+    const domainsToTry = getCookieEraseDomains(customDomain);
 
     /**
      * Helper function to erase cookie
@@ -325,25 +398,10 @@ export const eraseCookiesHelper = (cookies, customPath, customDomain) => {
     };
 
     for (const cookieName of cookies) {
-        erase(cookieName, customDomain);
+        for (const domain of domainsToTry)
+            erase(cookieName, domain || undefined);
 
-        /**
-         * If custom domain not specified,
-         * also erase config domain
-         */
-        if (!customDomain) {
-            erase(cookieName, domain);
-        }
-
-        /**
-         * If domain starts with 'www.',
-         * also erase the cookie for the
-         * main domain (without www)
-         */
-        if (isWwwSubdomain)
-            erase(cookieName, mainDomain);
-
-        debug('CookieConsent [AUTOCLEAR]: deleting cookie: "' + cookieName + '" path: "' + path + '" domain:', domain);
+        debug('CookieConsent [AUTOCLEAR]: deleting cookie: "' + cookieName + '" path: "' + path + '" domains:', domainsToTry);
     }
 };
 

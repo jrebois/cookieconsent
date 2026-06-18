@@ -5,6 +5,7 @@ import { setCookie } from "./config/mocks-utils";
 import {
     eraseCookiesHelper,
     getAllCookies,
+    getCookieEraseDomains,
     getSingleCookie,
     parseCookie
 }from '../src/utils/cookies';
@@ -70,4 +71,79 @@ describe("Cookie should be created successfully", () => {
         expect(allCookies.length).toBe(2);
         expect(allCookies).toContain('service1Cookie1', 'service1Cookie2');
     })
+})
+
+describe('getCookieEraseDomains', () => {
+    it('Should infer root domain variants when cookie.domain is not configured', () => {
+        const domains = getCookieEraseDomains(undefined, 'www.example.com', '');
+
+        expect(domains).toEqual(expect.arrayContaining([
+            '',
+            'www.example.com',
+            '.www.example.com',
+            'example.com',
+            '.example.com',
+        ]));
+    });
+
+    it('Should return only the explicit domain when provided', () => {
+        expect(getCookieEraseDomains('.example.com', 'www.example.com', '')).toEqual(['.example.com']);
+    });
+
+    it('Should not infer dotted domain variants for localhost', () => {
+        const domains = getCookieEraseDomains(undefined, 'localhost', '');
+
+        expect(domains.filter((domain) => domain.includes('.'))).toEqual([]);
+    });
+
+    it('Should use config cookie domain when specified', () => {
+        const domains = getCookieEraseDomains(undefined, 'www.example.com', 'www.example.com');
+
+        expect(domains).toEqual(expect.arrayContaining([
+            '',
+            'www.example.com',
+            'example.com',
+            '.example.com',
+        ]));
+        expect(domains).not.toContain('.www.example.com');
+    });
+
+    it('Should strip www prefix from config cookie domain', () => {
+        const domains = getCookieEraseDomains(undefined, 'localhost', 'www.example.com');
+
+        expect(domains).toEqual(expect.arrayContaining([
+            'www.example.com',
+            'example.com',
+            '.example.com',
+        ]));
+    });
+})
+
+describe('eraseCookiesHelper domain variants', () => {
+    afterEach(() => {
+        document.cookie.split(';').forEach((cookie) => {
+            const name = cookie.split('=')[0].trim();
+            if (name)
+                eraseCookiesHelper([name]);
+        });
+    });
+
+    it('Should erase cookies set with a domain attribute', () => {
+        const domain = location.hostname;
+        document.cookie = `_ga=test; expires=Sun, 1 Jan 2063 00:00:00 UTC; path=/; domain=${domain}`;
+        expect(document.cookie).toContain('_ga=');
+
+        eraseCookiesHelper(['_ga']);
+        expect(document.cookie).not.toContain('_ga=');
+    });
+
+    it('Should only use the explicit domain when provided', () => {
+        const domain = location.hostname;
+        document.cookie = `_ga=test; expires=Sun, 1 Jan 2063 00:00:00 UTC; path=/; domain=${domain}`;
+        eraseCookiesHelper(['_ga'], '/', 'wrong.domain');
+        expect(document.cookie).toContain('_ga=');
+
+        eraseCookiesHelper(['_ga'], '/', domain);
+        expect(document.cookie).not.toContain('_ga=');
+    });
 })
