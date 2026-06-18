@@ -117,9 +117,19 @@ Once a release tag exists, artifacts are available through:
 | Channel | Usage |
 | --- | --- |
 | **npm** | `pnpm add @bcomenet/cookieconsent-vanilla@<version>` |
-| **jsDelivr (CDN)** | `https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@<version>/dist/cookieconsent.umd.js` |
-| **GitHub Releases** | Download the `dist/` folder from the [releases page](https://github.com/orestbida/cookieconsent/releases) |
+| **jsDelivr (npm)** | `https://cdn.jsdelivr.net/npm/@bcomenet/cookieconsent-vanilla@<version>/dist/cookieconsent.umd.js` |
+| **jsDelivr (GitHub)** | `https://cdn.jsdelivr.net/gh/jrebois/cookieconsent@<commit-sha>/dist/cookieconsent.umd.js` |
+| **GitHub Releases** | Download the `dist/` folder from the [releases page](https://github.com/jrebois/cookieconsent/releases) |
 | **Self-hosted** | Copy `dist/cookieconsent.css` and `dist/cookieconsent.umd.js` to your static file server |
+
+For CDN usage, prefer **jsDelivr (npm)** after the package is published. Example for `3.1.0`:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@bcomenet/cookieconsent-vanilla@3.1.0/dist/cookieconsent.css">
+<script src="https://cdn.jsdelivr.net/npm/@bcomenet/cookieconsent-vanilla@3.1.0/dist/cookieconsent.umd.js"></script>
+```
+
+The **jsDelivr (GitHub)** URLs using a release tag such as `@3.1.0` may fail on a recently created fork with `Failed to fetch version info`. In that case, pin the full Git commit SHA instead of the tag, or use the npm CDN above.
 
 ### 4. Documentation site
 
