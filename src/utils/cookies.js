@@ -176,6 +176,8 @@ export const saveCookiePreferences = () => {
 
     let isFirstConsent = false;
     const stateChanged = categoriesWereChanged || servicesWereChanged;
+    let consentWasUpdated = false; // === isFirstConsent || stateChanged
+    let shouldAutoClear = false;
 
     if (state._invalidConsent || stateChanged) {
         /**
@@ -194,25 +196,38 @@ export const saveCookiePreferences = () => {
 
         setCookie();
 
-        const isAutoClearEnabled = globalObj._config.autoClearCookies;
-        const shouldClearCookies = isFirstConsent || stateChanged;
-
-        if (isAutoClearEnabled && shouldClearCookies)
-            autoclearCookiesHelper(isFirstConsent);
-
-        manageExistingScripts();
+        consentWasUpdated = true;
+        shouldAutoClear = globalObj._config.autoClearCookies && consentWasUpdated; // is autoclear enabled and usefull to do it now
     }
 
     if (isFirstConsent) {
         fireEvent(globalObj._customEvents._onFirstConsent);
         fireEvent(globalObj._customEvents._onConsent);
 
-        if (globalObj._config.mode === OPT_IN_MODE)
+        if (globalObj._config.mode === OPT_IN_MODE) {
+            if (shouldAutoClear)
+                autoclearCookiesHelper(isFirstConsent);
+
+            if (consentWasUpdated)
+                manageExistingScripts();
+
+            if (state._reloadPage) {
+                state._reloadPage = false;
+                location.reload();
+            }
+
             return;
+        }
     }
 
     if (stateChanged)
         fireEvent(globalObj._customEvents._onChange);
+
+    if (shouldAutoClear)
+        autoclearCookiesHelper(isFirstConsent);
+
+    if (consentWasUpdated)
+        manageExistingScripts();
 
     /**
      * Reload page if needed
@@ -264,8 +279,10 @@ export const setCookie = (useRemainingExpirationTime) => {
      * Set "domain" only if hostname contains a dot (e.g domain.com)
      * to ensure that cookie works with 'localhost'
      */
-    if (elContains(hostname, '.'))
-        cookieStr += '; Domain=' + domain;
+    const cookieDomain = domain || hostname;
+
+    if (elContains(hostname, '.') && cookieDomain)
+        cookieStr += '; Domain=' + cookieDomain;
 
     if (secure && protocol === 'https:')
         cookieStr += '; Secure';

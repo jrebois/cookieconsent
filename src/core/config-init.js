@@ -32,7 +32,6 @@ export const setConfig = (userConfig) => {
     const _root = userConfig.root;
     _dom._rootEl = (_root && isString(_root) ? doc.querySelector(_root) : _root) || doc.documentElement;
     //{{END: GUI}}
-    cookie.domain = location.hostname;
 
     /**
      * Make user configuration globally available

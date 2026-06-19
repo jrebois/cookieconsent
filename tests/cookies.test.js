@@ -1,6 +1,8 @@
 import * as CookieConsent from "../src/index"
 import testConfig from "./config/full-config";
+import basicConfig from "./config/basic-config";
 import { setCookie } from "./config/mocks-utils";
+import { globalObj } from '../src/core/global';
 
 import {
     eraseCookiesHelper,
@@ -86,6 +88,28 @@ describe('getCookieEraseDomains', () => {
         ]));
     });
 
+    it('Should include root domain when hostname has multiple subdomains', () => {
+        const hostname = 'app.blog.example.com';
+        const domains = getCookieEraseDomains(undefined, hostname, '');
+
+        expect(domains).toEqual(expect.arrayContaining([
+            '',
+            hostname,
+            '.' + hostname,
+            'example.com',
+            '.example.com',
+        ]));
+    });
+
+    it('Should not infer hostname variants when config cookie domain is set on a nested subdomain', () => {
+        const hostname = 'app.blog.example.com';
+        const domains = getCookieEraseDomains(undefined, hostname, 'app.blog.example.com');
+
+        expect(domains).toEqual(['', 'app.blog.example.com']);
+        expect(domains).not.toContain('example.com');
+        expect(domains).not.toContain('.example.com');
+    });
+
     it('Should return only the explicit domain when provided', () => {
         expect(getCookieEraseDomains('.example.com', 'www.example.com', '')).toEqual(['.example.com']);
     });
@@ -113,6 +137,20 @@ describe('getCookieEraseDomains', () => {
 
         expect(domains).toEqual(expect.arrayContaining([
             'www.example.com',
+            'example.com',
+            '.example.com',
+        ]));
+    });
+
+    it('Should infer root domain after init when cookie.domain is not configured', async () => {
+        await CookieConsent.reset(true);
+        await CookieConsent.run(basicConfig);
+
+        expect(globalObj._config.cookie.domain).toBe('');
+
+        const domains = getCookieEraseDomains(undefined, 'app.blog.example.com');
+
+        expect(domains).toEqual(expect.arrayContaining([
             'example.com',
             '.example.com',
         ]));
